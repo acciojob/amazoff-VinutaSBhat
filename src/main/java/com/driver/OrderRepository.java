@@ -98,10 +98,14 @@ public class OrderRepository {
     public String findLastDeliveryTimeByPartnerId(String partnerId){
         int maxTime = 0;
         for(String orderId : partnerToOrderMap.getOrDefault(partnerId, new HashSet<>())){
-            maxTime = Math.max(maxTime, orderMap.get(orderId).getDeliveryTime());
+            int deliveryTime = orderMap.get(orderId).getDeliveryTime();
+            if (deliveryTime > maxTime) {
+                maxTime = deliveryTime;
+            }
         }
         int hours = maxTime / 60;
         int minutes = maxTime % 60;
         return String.format("%02d:%02d", hours, minutes);
     }
+
 }

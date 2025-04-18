@@ -57,7 +57,8 @@ public class OrderController {
         deliveryPartner= orderService.getPartnerById(partnerId);
         //deliveryPartner should contain the value given by partnerId
 
-        return new ResponseEntity<>(deliveryPartner, HttpStatus.CREATED);
+
+        return new ResponseEntity<>(deliveryPartner, HttpStatus.OK);
     }
 
     @GetMapping("/get-order-count-by-partner-id/{partnerId}")
