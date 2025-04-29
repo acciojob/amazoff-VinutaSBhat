@@ -28,11 +28,17 @@ public class OrderRepository {
     }
 
     public void saveOrderPartnerMap(String orderId, String partnerId){
-        if(orderMap.containsKey(orderId) && partnerMap.containsKey(partnerId)){
+        if (orderMap.containsKey(orderId) && partnerMap.containsKey(partnerId)) {
+            System.out.println("Before adding order " + orderId + " to partner " + partnerId + ":");
+            System.out.println("Partner's current number of orders: " + partnerMap.get(partnerId).getNumberOfOrders());
+
             partnerToOrderMap.putIfAbsent(partnerId, new HashSet<>());
             partnerToOrderMap.get(partnerId).add(orderId);
             orderToPartnerMap.put(orderId, partnerId);
             partnerMap.get(partnerId).setNumberOfOrders(partnerToOrderMap.get(partnerId).size());
+
+            System.out.println("After adding order " + orderId + " to partner " + partnerId + ":");
+            System.out.println("Partner's updated number of orders: " + partnerMap.get(partnerId).getNumberOfOrders());
         }
     }
 

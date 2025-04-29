@@ -6,10 +6,15 @@ public class Order {
     private int deliveryTime;
 
     public Order(String id, String deliveryTime) {
-
         this.id = id;
-        String[] parts = deliveryTime.split(":");
-        this.deliveryTime = Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+        this.deliveryTime = convertDeliveryTimeToMinutes(deliveryTime);
+    }
+
+    private int convertDeliveryTimeToMinutes(String time) {
+        String[] timeParts = time.split(":");
+        int hours = Integer.parseInt(timeParts[0]);
+        int minutes = Integer.parseInt(timeParts[1]);
+        return hours * 60 + minutes;
     }
 
     public String getId() {
