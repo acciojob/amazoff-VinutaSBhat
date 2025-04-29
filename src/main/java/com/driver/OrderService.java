@@ -28,6 +28,9 @@ public class OrderService {
     }
 
     public DeliveryPartner getPartnerById(String partnerId){
+
+        partnerId = partnerId.trim();
+        System.out.println("Service layer - Looking for partner: '" + partnerId + "'");
         return orderRepository.findPartnerById(partnerId);
     }
 

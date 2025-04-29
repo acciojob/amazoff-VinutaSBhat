@@ -43,19 +43,37 @@ public class OrderRepository {
     }
 
     public Order findOrderById(String orderId){
+        System.out.println("orderMap" + orderMap);
         return orderMap.get(orderId);
     }
 
     public DeliveryPartner findPartnerById(String partnerId){
-        return partnerMap.get(partnerId);
+
+        partnerId = partnerId.trim();
+        System.out.println("Repository layer - Looking for partner: '" + partnerId + "'");
+        System.out.println("Current partners: " + partnerMap.keySet());
+
+        DeliveryPartner partner = partnerMap.get(partnerId);
+        if (partner != null) {
+            System.out.println("Found partner: " + partner);
+        } else {
+            System.out.println("Partner not found: '" + partnerId + "'");
+        }
+        return partner;
     }
 
     public Integer findOrderCountByPartnerId(String partnerId){
-        return partnerToOrderMap.getOrDefault(partnerId,new HashSet<>()).size();
+        if (!partnerToOrderMap.containsKey(partnerId)) {
+            return 0;
+        }
+        return partnerToOrderMap.get(partnerId).size();
     }
 
     public List<String> findOrdersByPartnerId(String partnerId){
-        return new ArrayList<>(partnerToOrderMap.getOrDefault(partnerId,new HashSet<>()));
+        if (!partnerToOrderMap.containsKey(partnerId)) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(partnerToOrderMap.get(partnerId));
     }
 
     public List<String> findAllOrders(){
@@ -91,27 +109,45 @@ public class OrderRepository {
     }
 
     public Integer findOrdersLeftAfterGivenTimeByPartnerId(String timeString, String partnerId){
+        if (!partnerToOrderMap.containsKey(partnerId)) {
+            System.out.println("Partner " + partnerId + " not found in partnerToOrderMap.");
+            return 0;
+        }
+
+        int givenMinutes = convertTimeToMinutes(timeString);
+        System.out.println("Given time string: " + timeString);
+        System.out.println("Given time in minutes: " + givenMinutes);
+
         int count = 0;
-        int time = Integer.parseInt(timeString.split(":")[0]) * 60 + Integer.parseInt(timeString.split(":")[1]);
-        for(String orderId : partnerToOrderMap.getOrDefault(partnerId, new HashSet<>())){
-            if(orderMap.get(orderId).getDeliveryTime() > time){
+        for (String orderId : partnerToOrderMap.get(partnerId)) {
+            Order order = orderMap.get(orderId);
+            if (order != null && order.getDeliveryTime() > givenMinutes) {
                 count++;
             }
         }
+
+        System.out.println("Orders left after " + timeString + " for partner " + partnerId + ": " + count);
         return count;
     }
 
     public String findLastDeliveryTimeByPartnerId(String partnerId){
-        int maxTime = 0;
-        for(String orderId : partnerToOrderMap.getOrDefault(partnerId, new HashSet<>())){
-            int deliveryTime = orderMap.get(orderId).getDeliveryTime();
-            if (deliveryTime > maxTime) {
-                maxTime = deliveryTime;
+        if (!partnerToOrderMap.containsKey(partnerId)) {
+            return "00:00";
+        }
+
+        int latestTime = 0;
+        for (String orderId : partnerToOrderMap.get(partnerId)) {
+            Order order = orderMap.get(orderId);
+            if (order != null) {
+                latestTime = Math.max(latestTime, order.getDeliveryTime());
             }
         }
-        int hours = maxTime / 60;
-        int minutes = maxTime % 60;
-        return String.format("%02d:%02d", hours, minutes);
+
+        return String.format("%02d:%02d", latestTime / 60, latestTime % 60);
+    }
+    private int convertTimeToMinutes(String timeString) {
+        String[] parts = timeString.split(":");
+        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
     }
 
 }
